@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -19,19 +19,20 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Create Missing Properties
+      - name: Build the Pro APK
         run: |
-          echo "sdk.dir=$ANDROID_HOME" > local.properties
-          echo "WEATHER_API_KEY=dummy_key" >> local.properties
-          echo "MAPS_API_KEY=dummy_key" >> local.properties
-          echo "NAGA_API_KEY=dummy_key" >> local.properties
-
-      - name: Build Pro APK
-        run: |
+          # Create a dummy properties file to satisfy the code
+          echo "WEATHER_API_KEY=dummy" > local.properties
+          echo "BACKUP_PASSWORD=dummy" >> local.properties
+          echo "NAGA_API_KEY=dummy" >> local.properties
+          echo "sdk.dir=$ANDROID_HOME" >> local.properties
+          
           chmod +x gradlew
-          ./gradlew assembleProDebug --stacktrace
+          
+          # Pass the specific placeholders that the Manifest is asking for
+          ./gradlew assembleProDebug -PweatherAPIkey="dummy" -PbackupPassword="dummy"
 
-      - name: Upload APK
+      - name: Upload the APK for Download
         uses: actions/upload-artifact@v4
         with:
           name: Yantra-Pro-APK
