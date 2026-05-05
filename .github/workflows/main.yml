@@ -18,6 +18,7 @@ jobs:
 
       - name: Build the Pro APK
         run: |
+          touch local.properties
           chmod +x gradlew
           ./gradlew assembleProDebug
 
