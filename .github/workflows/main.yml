@@ -3,8 +3,9 @@ name: Build Yantra Pro
 on: 
   workflow_dispatch:
 
+# This hides the Node.js warning so it stops bothering you!
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   build:
@@ -19,21 +20,20 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build the Pro APK
+      - name: Follow Step 4 (Create local.properties)
         run: |
-          # Create a dummy properties file to satisfy the code
-          echo "WEATHER_API_KEY=dummy" > local.properties
-          echo "BACKUP_PASSWORD=dummy" >> local.properties
-          echo "NAGA_API_KEY=dummy" >> local.properties
+          # This writes the keys EXACTLY as the developer instructions say
+          echo 'weatherAPIkey="dummy_weather_key"' > local.properties
+          echo 'backupPassword="dummy_backup_password"' >> local.properties
           echo "sdk.dir=$ANDROID_HOME" >> local.properties
-          
+
+      - name: Follow Step 5 & 6 (Build proDebug)
+        run: |
           chmod +x gradlew
-          
-          # Pass the specific placeholders that the Manifest is asking for
-          ./gradlew assembleProDebug -PweatherAPIkey="dummy" -PbackupPassword="dummy"
+          ./gradlew assembleProDebug
 
       - name: Upload the APK for Download
         uses: actions/upload-artifact@v4
         with:
           name: Yantra-Pro-APK
-          path: app/build/outputs/apk/pro/debug/*.apk
+          path: app/build/outputs/apk/**/*.apk
